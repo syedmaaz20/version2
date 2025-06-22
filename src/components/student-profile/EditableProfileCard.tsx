@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useShareCampaign } from "@/hooks/useShareCampaign";
 import { toast } from "@/hooks/use-toast";
-import { supabase, uploadFile, getPublicUrl } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { updateStudentImages } from "@/lib/imageUploadHandler";
 
 interface ProfileData {
   studentName: string;
@@ -56,57 +56,24 @@ const EditableProfileCard: React.FC<EditableProfileCardProps> = ({ data, onUpdat
       return;
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file (JPEG, PNG, WebP)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsUploadingPhoto(true);
 
     try {
-      // Create unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/profile-${Date.now()}.${fileExt}`;
+      const result = await updateStudentImages({
+        userId: user.id,
+        profileImage: file
+      });
 
-      // Upload to Supabase storage
-      const uploadResult = await uploadFile('profile-pictures', fileName, file);
-      
-      if (uploadResult) {
-        // Get public URL
-        const publicUrl = getPublicUrl('profile-pictures', fileName);
-        
-        // Update profile in database
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ avatar_url: publicUrl })
-          .eq('id', user.id);
-
-        if (updateError) {
-          throw updateError;
-        }
-
+      if (result.success && result.profileImageUrl) {
         // Update local state
-        setEditData(prev => ({ ...prev, photo: publicUrl }));
+        setEditData(prev => ({ ...prev, photo: result.profileImageUrl! }));
         
         toast({
           title: "Profile picture updated!",
           description: "Your profile picture has been successfully updated.",
         });
+      } else {
+        throw new Error(result.error || 'Failed to upload profile picture');
       }
     } catch (error) {
       console.error('Error uploading profile picture:', error);
@@ -131,47 +98,24 @@ const EditableProfileCard: React.FC<EditableProfileCardProps> = ({ data, onUpdat
       return;
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file (JPEG, PNG, WebP)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (10MB limit for banners)
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsUploadingBanner(true);
 
     try {
-      // Create unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/banner-${Date.now()}.${fileExt}`;
+      const result = await updateStudentImages({
+        userId: user.id,
+        bannerImage: file
+      });
 
-      // Upload to Supabase storage
-      const uploadResult = await uploadFile('banner-images', fileName, file);
-      
-      if (uploadResult) {
-        // Get public URL
-        const publicUrl = getPublicUrl('banner-images', fileName);
-        
+      if (result.success && result.bannerImageUrl) {
         // Update local state
-        setEditData(prev => ({ ...prev, bannerImage: publicUrl }));
+        setEditData(prev => ({ ...prev, bannerImage: result.bannerImageUrl! }));
         
         toast({
           title: "Banner updated!",
           description: "Your banner image has been successfully updated.",
         });
+      } else {
+        throw new Error(result.error || 'Failed to upload banner image');
       }
     } catch (error) {
       console.error('Error uploading banner:', error);

@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Eye, Share2, Heart, DollarSign, Edit3, BarChart3 } from "lucide-react";
 
 const StudentDashboard = () => {
-  const { user, profile } = useAuth();
-useEffect(() => {
+
+  useEffect(() => {
   console.log("✅ StudentDashboard mounted");
 }, []);
+
+  const { user, profile } = useAuth();
 
   // Mock campaign data
   const campaignStats = {

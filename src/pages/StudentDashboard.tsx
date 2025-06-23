@@ -4,10 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, Share2, Heart, DollarSign, Edit3, BarChart3 } from "lucide-react";
-
-const StudentDashboard = () => {
-
-  const { user, profile, loading } = useAuth();
+const { user, profile, loading } = useAuth();
 
 if (loading || !profile) {
   return (
@@ -21,6 +18,9 @@ if (loading || !profile) {
   );
 }
 
+const StudentDashboard = () => {
+
+  
   const { user, profile } = useAuth();
 
   // Mock campaign data

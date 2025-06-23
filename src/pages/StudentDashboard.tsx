@@ -7,10 +7,7 @@ import { Eye, Share2, Heart, DollarSign, Edit3, BarChart3 } from "lucide-react";
 
 const StudentDashboard = () => {
 
-  useEffect(() => {
-  console.log("✅ StudentDashboard mounted");
-}, []);
-
+  
   const { user, profile } = useAuth();
 
   // Mock campaign data
@@ -186,5 +183,8 @@ const StudentDashboard = () => {
     </div>
   );
 };
+useEffect(() => {
+  console.log("✅ StudentDashboard mounted");
+}, []);
 
 export default StudentDashboard;

@@ -185,8 +185,7 @@ const StudentDashboard = () => {
 
   useEffect(() => {
   console.log("✅ StudentDashboard mounted");
-}, []);
-
+}, [])
 };
 
 export default StudentDashboard;

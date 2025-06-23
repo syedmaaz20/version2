@@ -8,7 +8,20 @@ import { Eye, Share2, Heart, DollarSign, Edit3, BarChart3 } from "lucide-react";
 const StudentDashboard = () => {
 
   
-  const { user, profile } = useAuth();
+const { user, profile, loading } = useAuth();
+
+if (loading || !profile) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 via-slate-50 to-white">
+      <div className="text-center">
+        <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+        <p className="text-gray-600">Loading dashboard...</p>
+        <p className="text-sm text-gray-400 mt-2">Just a moment please</p>
+      </div>
+    </div>
+  );
+}
+
 
   // Mock campaign data
   const campaignStats = {

@@ -45,15 +45,8 @@ const App = () => (
             <Route path="/how-it-works" element={<HowItWorks />} />
             
             {/* Protected Routes */}
-            <Route 
-              path="/student-profile" 
-              element={
-                <PrivateRoute requiredUserType="student">
-                  <StudentProfile />
-                </PrivateRoute>
-              } 
-            />
 
+  <Route path="/student-profile" element={<StudentProfile />} />
            <Route path="/student-dashboard" element={<StudentDashboard />} />
 
            

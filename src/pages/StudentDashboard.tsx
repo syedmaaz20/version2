@@ -182,9 +182,11 @@ const StudentDashboard = () => {
       </main>
     </div>
   );
-};
-useEffect(() => {
+
+  useEffect(() => {
   console.log("✅ StudentDashboard mounted");
 }, []);
+
+};
 
 export default StudentDashboard;

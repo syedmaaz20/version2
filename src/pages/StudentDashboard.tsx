@@ -16,7 +16,7 @@ if (loading || !profile) {
       </div>
     </div>
   );
-}
+} 
 
 const StudentDashboard = () => {
 

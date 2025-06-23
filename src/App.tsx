@@ -53,14 +53,9 @@ const App = () => (
                 </PrivateRoute>
               } 
             />
-            <Route 
-              path="/student-dashboard" 
-              element={
-                <PrivateRoute requiredUserType="student">
-                  <StudentDashboard />
-                </PrivateRoute>
-              } 
-            />
+
+            <Route path="/student-dashboard" element={   <PrivateRoute requiredUserType="student">     <StudentDashboard />   </PrivateRoute> } />
+           
             <Route 
               path="/donor-dashboard" 
               element={

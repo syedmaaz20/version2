@@ -37,8 +37,48 @@ const loadUserProfile = async (userId: string) => {
   try {
     const userProfile = await getUserProfile(userId);
     console.log('Profile loaded:', userProfile);
-    setProfile(userProfile);
-    return userProfile;
+    
+    if (userProfile) {
+      setProfile(userProfile);
+      return userProfile;
+    }
+    
+    // If no profile exists for authenticated user, create a default one
+    console.log('No profile found, creating default profile for user:', userId);
+    
+    // Get user email from current session
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const email = currentUser?.email || '';
+    
+    // Create default names from email
+    const emailPrefix = email.split('@')[0];
+    const firstName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    const lastName = 'User';
+    
+    const defaultProfileData: Omit<UserProfile, 'created_at' | 'updated_at'> = {
+      id: userId,
+      first_name: firstName,
+      last_name: lastName,
+      user_type: 'donor', // Default to donor type
+      username: undefined,
+    };
+
+    const { data: newProfile, error: profileError } = await supabase
+      .from('profiles')
+      .insert(defaultProfileData)
+      .select()
+      .single();
+
+    if (profileError) {
+      console.error('Error creating default profile:', profileError);
+      setProfile(null);
+      return null;
+    }
+
+    console.log('Default profile created:', newProfile);
+    setProfile(newProfile);
+    return newProfile;
+    
   } catch (error) {
     console.error('Error loading user profile:', error);
     setProfile(null);

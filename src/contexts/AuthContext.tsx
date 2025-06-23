@@ -29,19 +29,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+////////////////////////////////////////////////////////////////////
+  
+/////////////////////////////////////////////////////////////////////
+const loadUserProfile = async (userId: string) => {
+  console.log('Fetching profile for', userId);
+  try {
+    const userProfile = await getUserProfile(userId);
+    console.log('Profile loaded:', userProfile);
+    setProfile(userProfile);
+    return userProfile;
+  } catch (error) {
+    console.error('Error loading user profile:', error);
+    setProfile(null);
+    return null;
+  }
+};
 
-  const loadUserProfile = async (userId: string) => {
-    try {
-      const userProfile = await getUserProfile(userId);
-      setProfile(userProfile);
-      return userProfile;
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-      setProfile(null);
-      return null;
-    }
-  };
 
+  
+////////////////////////////////////////////////////////////////////
   // ✅ FIX: Load session from localStorage and subscribe to changes
   useEffect(() => {
     let mounted = true;

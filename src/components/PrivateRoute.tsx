@@ -16,17 +16,16 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn("Auth loading timeout reached in PrivateRoute");
+      if (loading || !profile) {
+        console.warn("Auth/profile loading timeout reached in PrivateRoute");
         setTimeoutReached(true);
       }
     }, 8000);
 
     return () => clearTimeout(timeout);
-  }, [loading]);
+  }, [loading, profile]);
 
-  // Wait for loading state to finish or timeout
-  if (loading && !timeoutReached) {
+  if ((loading || !profile) && !timeoutReached) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 via-slate-50 to-white">
         <div className="text-center">
@@ -38,8 +37,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
     );
   }
 
-  if (timeoutReached && loading) {
-    console.error("Authentication timeout - redirecting to home");
+  if (timeoutReached && (loading || !profile)) {
+    console.error("Authentication timeout or profile not loaded - redirecting to home");
     return <Navigate to="/" replace />;
   }
 
@@ -55,7 +54,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
     return <Navigate to="/" replace />;
   }
 
-  console.log("Rendering children: user=", profile?.user_type);
+  console.log("✅ Rendering children: user =", profile?.user_type);
   return children;
 };
 

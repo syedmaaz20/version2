@@ -30,6 +30,20 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredUserType 
     return <Navigate to="/" replace />;
   }
 
+  // Right after checking if !isAuthenticated
+if (!profile) {
+  console.warn("Still waiting for profile...");
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="text-center">
+        <div className="animate-spin h-10 w-10 rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-3" />
+        <p className="text-sm text-gray-500">Loading profile...</p>
+      </div>
+    </div>
+  );
+}
+
+
   // If user type doesn't match
   if (requiredUserType && profile?.user_type !== requiredUserType) {
     console.warn(`Access denied: required ${requiredUserType}, got ${profile?.user_type}`);

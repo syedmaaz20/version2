@@ -47,7 +47,22 @@ const App = () => (
             {/* Protected Routes */}
 
  
-           
+            <Route 
+              path="/student-dashboard" 
+              element={
+                <PrivateRoute requiredUserType="student">
+                  <StudentDashboard />
+                </PrivateRoute>
+              } 
+            />
+             <Route 
+              path="/student-profile" 
+              element={
+                <PrivateRoute requiredUserType="student">
+                  <StudentProfile />
+                </PrivateRoute>
+              } 
+            />
             <Route 
               path="/donor-dashboard" 
               element={

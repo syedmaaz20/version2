@@ -25,11 +25,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredUserType 
     );
   }
 
-  // Not authenticated — redirect to login or home
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
   // Right after checking if !isAuthenticated
 if (!profile) {
   console.warn("Still waiting for profile...");
@@ -42,6 +37,13 @@ if (!profile) {
     </div>
   );
 }
+
+  
+  // Not authenticated — redirect to login or home
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
 
 
   // If user type doesn't match

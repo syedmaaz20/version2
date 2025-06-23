@@ -37,6 +37,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredUserType 
   }
 
   // All checks passed — allow access
+  console.log('Rendering children: user=', profile?.user_type);
+
   return children;
 };
 

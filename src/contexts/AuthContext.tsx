@@ -10,10 +10,10 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (
-    email: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string, 
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
     userType: 'student' | 'donor' | 'admin',
     username?: string
   ) => Promise<void>;
@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user profile helper
   const loadUserProfile = async (userId: string) => {
     try {
       const userProfile = await getUserProfile(userId);
@@ -43,33 +42,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Initialize authentication state
+  // ✅ FIX: Load session from localStorage and subscribe to changes
   useEffect(() => {
     let mounted = true;
 
-    // Set up auth state listener
+    const initAuth = async () => {
+      // Get session from Supabase (restores from localStorage)
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      setSession(session);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        await loadUserProfile(currentUser.id);
+      }
+
+      setLoading(false); // ✅ Done loading auth state
+    };
+
+    initAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event);
-        
+      async (_event, session) => {
         if (!mounted) return;
 
+        console.log('Auth state changed:', _event);
         setSession(session);
-        
-        if (session?.user) {
-          setUser(session.user);
-          await loadUserProfile(session.user.id);
+
+        const newUser = session?.user ?? null;
+        setUser(newUser);
+
+        if (newUser) {
+          await loadUserProfile(newUser.id);
         } else {
-          setUser(null);
           setProfile(null);
         }
-        
-        // Always set loading to false after processing the session
-        setLoading(false);
+
+        setLoading(false); // in case user logged out or in
       }
     );
 
-    // Cleanup function
     return () => {
       mounted = false;
       subscription.unsubscribe();
@@ -79,7 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       const { user: authUser } = await signIn(email, password);
-      // Session will be updated via onAuthStateChange
+      // session will be handled by the listener
     } catch (error) {
       if (error instanceof Error && error.message.includes('Email not confirmed')) {
         throw new Error('Please confirm your email address. Check your inbox for a verification link.');
@@ -89,28 +104,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signup = async (
-    email: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string, 
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
     userType: 'student' | 'donor' | 'admin',
     username?: string
   ) => {
     try {
-      // Check if username is unique for students
       if (userType === 'student' && username) {
         const { data: existingUser } = await supabase
           .from('profiles')
           .select('username')
           .eq('username', username)
           .maybeSingle();
-        
+
         if (existingUser) {
           throw new Error('Username already exists');
         }
       }
 
-      // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -149,23 +162,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       await signOut();
-      
-      // Clear state
       setSession(null);
       setUser(null);
       setProfile(null);
-      
+
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account.",
       });
-      
+
       if (window.location.pathname !== '/') {
         window.location.href = '/';
       }
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if logout fails, clear local data
       setSession(null);
       setUser(null);
       setProfile(null);
@@ -174,7 +184,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) throw new Error('No user logged in');
-    
+
     const { data: updatedProfile, error } = await supabase
       .from('profiles')
       .update(updates)

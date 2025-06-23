@@ -46,9 +46,7 @@ const App = () => (
             
             {/* Protected Routes */}
 
-  <Route path="/student-profile" element={<StudentProfile />} />
-           <Route path="/student-dashboard" element={<StudentDashboard />} />
-
+ 
            
             <Route 
               path="/donor-dashboard" 
